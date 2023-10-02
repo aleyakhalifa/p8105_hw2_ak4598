@@ -7,7 +7,8 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-
+library(readxl)
+library(janitor)
 ```
 
 This is an R Markdown file, rendered to github, that describes the process for problems 1-3. The data used in each problem has already been loaded into the project directory in the folder `data`.
@@ -63,7 +64,7 @@ unemployment <- unemployment %>%
                names_to = "mon",
                values_to = "unemployment") %>%
   mutate(Year = as.integer(Year)) %>%
-  janitor::clean_names()
+  clean_names()
 ```
 
 
@@ -91,14 +92,66 @@ The `snp` and `unemployment` datasets were merged into the `pols` dataset to cre
 
 
 # Problem 2
-This problem uses Mr. Trash Wheel data.
-```{r}
 
+This problem uses Mr. Trash Wheel data. Below we import and clean the data for each trash wheel. The two main changes in each dataset is adding a variable `wheel` that reflects the specific trash wheel name, and updating the `homes_powered` variable to estimate the number of homes powered for any dumpster-date record that has a weight in tons of trash collected. 
+
+## 1. Mr. Trash Wheel
+
+```{r}
+mr <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+                 sheet = "Mr. Trash Wheel",
+                 range = "A2:N549") %>%
+  clean_names() %>%
+  mutate(wheel = "Mr. Trash Wheel",
+         homes_powered = weight_tons*500/30) %>%
+  relocate(wheel, dumpster, month, year, date, weight_tons, volume_cubic_yards, homes_powered)
+```
+
+## 2. Professor Trash Wheel
+
+```{r}
+professor <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+                 sheet = "Professor Trash Wheel",
+                 range = "A2:M96") %>%
+  clean_names() %>%
+  mutate(wheel = "Professor Trash Wheel",
+         homes_powered = weight_tons*500/30,
+         year = as.character(year)) %>%
+  relocate(wheel, dumpster, month, year, date, weight_tons, volume_cubic_yards, homes_powered)
+```
+
+## 3. Gwynnda
+
+```{r}
+gwynnda <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+                 sheet = "Gwynnda Trash Wheel",
+                 range = "A2:K108") %>%
+  clean_names() %>%
+  mutate(wheel = "Gwynnda Trash Wheel",
+         homes_powered = weight_tons*500/30,
+         year = as.character(year)) %>%
+  relocate(wheel, dumpster, month, year, date, weight_tons, volume_cubic_yards, homes_powered)
+```
+
+## 4. Combine trash wheels
+
+```{r}
+trash <- 
+  bind_rows(mr, professor, gwynnda)
 ```
 
 
+The trash dataset for Mr. Trash Wheel had `r nrow(mr)` observations of dumpster-dates (rows) and `r length(mr)` variables (columns). The trash dataset for Professor Trash Wheel had `r nrow(professor)` observations of dumpster-dates (rows) and `r length(professor)` variables (columns). The trash dataset for Gwynnda Trash Wheel had `r nrow(gwynnda)` observations of dumpster-dates (rows) and `r length(gwynnda)` variables (columns). After appending these three datasets, each reflecting dumpster-date data for a specific trash wheel, we end up with `r nrow(trash)` total observations. 
+
+The key variables include `wheel` (name of one of the three wheels), `dumpster` (the dumpster number where trash was deposited), `weight_tons` (the weight of the trash collected at that dumpster on that date), and `homes_powered` (the estimated number of homes that could be powered by the amount of trash collected at that dumpster on that date). 
+
+Of note, the total weight of trash collected by Professor Trash Wheel was `r round(professor %>% pull(weight_tons) %>% sum,0)` tons. The total number of cigarette butts collected by Gwynnda in July 2021 was `r format(gwynnda %>% filter(month=="July" & year=="2021") %>% pull(cigarette_butts) %>% sum, scientific=FALSE, big.mark=",")`.
+
+
 # Problem 3
+
 This problem uses Alzeihmer's disease (AD) biomarker data from the MCI dataset.
+
 ```{r}
 
 ```
