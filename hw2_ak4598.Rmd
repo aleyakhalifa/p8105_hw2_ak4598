@@ -150,9 +150,68 @@ Of note, the total weight of trash collected by Professor Trash Wheel was `r rou
 
 # Problem 3
 
-This problem uses Alzeihmer's disease (AD) biomarker data from the MCI dataset.
+This problem uses Alzeihmer's disease (AD) biomarker data from the MCI dataset. The data are organized into 1) baseline demographic data and 2) longitudinally observed biomarker values.
+
+## Baseline demographics
+
+First, import and tidy the data. We only import data after the first row, since the first row includes value codes not variable names. We also convert all "." values to `NA`.
 
 ```{r}
-
+baseline <- read_csv("data/data_mci/MCI_baseline.csv", 
+                     skip = 1,
+                     na = ".") %>%
+  clean_names() 
 ```
+
+Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric). We used the value codes in the first row of the csv file to encode the two variables.
+
+```{r}
+baseline <- baseline %>%
+  mutate(sex = case_when(
+    sex == 1 ~ "Male",
+    sex == 0 ~ "Female"),
+    apoe4 = case_when(apoe4 == 1 ~ "Carrier",
+                      apoe4 == 0 ~ "Non-carrier"))
+```
+
+Remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). To do this, we excluded those participants whose age at MCI onset is equal to or lesser than their age at baseilne. Since `NA` values signify that the participant never acquired MCI, these should be included.
+
+```{r}
+baseline_eligible <- baseline %>%
+  filter((age_at_onset != current_age & age_at_onset > current_age) | is.na(age_at_onset))
+```
+
+`r nrow(baseline) - nrow(baseline_eligible)` participants were not eligible for the study because they acquired MCI before baseline. These were excluded from the `baseline` dataset to create the new `baseline_eligible` dataset. A total of `r nrow(baseline_eligible)` participants were recruited and eligible, and `r nrow(filter(baseline_eligible, !is.na(age_at_onset)))` developed MCI (they had a non-missing value for `age_at_onset`). The average baseline age is `r round(baseline_eligible %>% pull(current_age) %>% mean(),2)`, and `r baseline_eligible %>% filter(sex=="Female" & apoe4=="Carrier") %>% nrow() /  baseline_eligible %>% filter(sex=="Female") %>% nrow() * 100`% of women are APOE4 carriers.
+
+
+## Longitudinal biomarkers
+
+Import and tidy the data. We skipped the first because it contained value codes not variable names. We also renamed `study_id` to `id` to match the `baseline dataset`.
+
+```{r}
+biomarkers <- read_csv("data/data_mci/mci_amyloid.csv", 
+                       skip = 1) %>%
+  clean_names() %>%
+  rename(id = study_id)
+```
+
+This dataset contains 42/40 ratio important for predicting and diagnosing Alzheimer's disease. The ratio values are organized by time point in the follow up period: from `baseline` to `time_8`. There are `r ncol(biomarkers) - 1` time point measurements of the ratio, and the dataset consists of `r nrow(biomarkers)` participants.
+
+
+## Compare
+
+Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained.
+
+```{r}
+df <- baseline_eligible %>% inner_join(biomarkers, by = "id") 
+```
+
+When merging the two, `r nrow(df)` participants were found in both baseline and biomarker datsets. `r nrow(anti_join(baseline_eligible, biomarkers, by = "id"))` participants were found in only the baseline or biomarker datasets. 
+
+The final dataset now has `r ncol(df)` columns. The dataset is exported to a CSV to the data/data_mci directory.
+
+```{r}
+write_csv(df, "data/data_mci/merged.csv")
+```
+
 
