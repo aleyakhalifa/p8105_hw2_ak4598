@@ -98,7 +98,7 @@ This problem uses Mr. Trash Wheel data. Below we import and clean the data for e
 ## 1. Mr. Trash Wheel
 
 ```{r}
-mr <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+mr <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Mr. Trash Wheel",
                  range = "A2:N549") %>%
   clean_names() %>%
@@ -110,7 +110,7 @@ mr <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
 ## 2. Professor Trash Wheel
 
 ```{r}
-professor <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+professor <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Professor Trash Wheel",
                  range = "A2:M96") %>%
   clean_names() %>%
@@ -123,7 +123,7 @@ professor <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
 ## 3. Gwynnda
 
 ```{r}
-gwynnda <- read_excel("data/202207 Trash Wheel Collection Data.xlsx",
+gwynnda <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Gwynnda Trash Wheel",
                  range = "A2:K108") %>%
   clean_names() %>%
