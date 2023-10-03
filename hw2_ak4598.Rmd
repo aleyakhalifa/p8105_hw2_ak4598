@@ -100,7 +100,7 @@ This problem uses Mr. Trash Wheel data. Below we import and clean the data for e
 ```{r}
 mr <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Mr. Trash Wheel",
-                 range = "A2:N549") %>%
+                 range = "A2:N586") %>%
   clean_names() %>%
   mutate(wheel = "Mr. Trash Wheel",
          homes_powered = weight_tons*500/30) %>%
@@ -112,7 +112,7 @@ mr <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
 ```{r}
 professor <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Professor Trash Wheel",
-                 range = "A2:M96") %>%
+                 range = "A2:M108") %>%
   clean_names() %>%
   mutate(wheel = "Professor Trash Wheel",
          homes_powered = weight_tons*500/30,
@@ -125,7 +125,7 @@ professor <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
 ```{r}
 gwynnda <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
                  sheet = "Gwynnda Trash Wheel",
-                 range = "A2:K108") %>%
+                 range = "A2:L157") %>%
   clean_names() %>%
   mutate(wheel = "Gwynnda Trash Wheel",
          homes_powered = weight_tons*500/30,
